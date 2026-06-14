@@ -97,7 +97,6 @@ class _GeneratorScreenState extends ConsumerState<GeneratorScreen> {
     setState(() => _isSaving = false);
   }
 
-
   Future<void> _shareQr() async {
     final state = ref.read(generatorProvider);
     if (state.text.isEmpty) return;
@@ -180,8 +179,8 @@ class _GeneratorScreenState extends ConsumerState<GeneratorScreen> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: OutlinedButton.icon(
-                      onPressed: () =>
-                          ClipboardHelper.copy(state.text, label: 'Text copied'),
+                      onPressed: () => ClipboardHelper.copy(state.text,
+                          label: 'Text copied'),
                       icon: const Icon(Icons.copy_rounded),
                       label: const Text('Copy'),
                     ),
@@ -285,8 +284,7 @@ class _GeneratorScreenState extends ConsumerState<GeneratorScreen> {
                   color: Colors.transparent,
                   label: 'Clear',
                   isSelected: state.backgroundColor == Colors.transparent,
-                  onTap: () =>
-                      notifier.setBackgroundColor(Colors.transparent),
+                  onTap: () => notifier.setBackgroundColor(Colors.transparent),
                   cs: cs,
                 ),
               ],
@@ -304,8 +302,7 @@ class _GeneratorScreenState extends ConsumerState<GeneratorScreen> {
                   .map(
                     (e) => DropdownMenuItem(
                       value: e.$1,
-                      child: Text(e.$2,
-                          style: AppTextStyles.bodyMedium),
+                      child: Text(e.$2, style: AppTextStyles.bodyMedium),
                     ),
                   )
                   .toList(),
