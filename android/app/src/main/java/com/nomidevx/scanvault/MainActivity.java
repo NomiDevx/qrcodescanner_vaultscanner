@@ -1,4 +1,4 @@
-package com.scanvault.app;
+package com.nomidevx.scanvault;
 
 import io.flutter.embedding.android.FlutterActivity;
 
