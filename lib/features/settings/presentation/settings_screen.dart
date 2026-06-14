@@ -218,8 +218,7 @@ class SettingsScreen extends ConsumerWidget {
 
   Future<void> _openPrivacyPolicy(BuildContext context) async {
     // Try to open the asset as an in-app web page or external URL
-    final uri = Uri.parse(
-        'https://raw.githubusercontent.com/scanvault/scanvault/main/privacy_policy.html');
+    final uri = Uri.parse(AppConstants.privacyPolicyUrl);
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
     } else {

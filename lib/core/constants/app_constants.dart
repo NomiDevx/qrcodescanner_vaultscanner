@@ -15,6 +15,8 @@ class AppConstants {
   // App info
   static const String appName = 'ScanVault';
   static const String privacyPolicyAsset = 'assets/privacy_policy.html';
+  static const String privacyPolicyUrl =
+      'https://nomidevx.github.io/qrcodescanner_vaultscanner/assets/privacy_policy.html';
   static const String playStoreUrl =
       'https://play.google.com/store/apps/details?id=com.scanvault.app';
 
