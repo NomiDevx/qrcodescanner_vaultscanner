@@ -1,0 +1,88 @@
+name: scanvault
+description: Fast, private QR & barcode scanner — no account required.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # QR/Barcode scanning
+  mobile_scanner: ^5.2.3
+
+  # QR Code generation
+  qr_flutter: ^4.1.0
+
+  # State management
+  flutter_riverpod: ^2.5.1
+
+  # Local storage (scan history)
+  hive_flutter: ^1.1.0
+
+  # Navigation
+  go_router: ^14.2.7
+
+  # Image picker (scan from gallery)
+  image_picker: ^1.1.2
+
+  # Share
+  share_plus: ^10.0.2
+
+  # URL launcher (smart actions)
+  url_launcher: ^6.3.0
+
+  # Vibration feedback
+  vibration: ^2.0.0
+
+  # Theme persistence
+  shared_preferences: ^2.3.2
+
+  # Permissions
+  permission_handler: ^11.3.1
+
+  # Screenshot / save QR to gallery
+  screenshot: ^3.0.0
+  gal: ^2.3.0
+
+  # Toast notifications
+  fluttertoast: ^8.2.8
+
+  # Temp directory for sharing files
+  path_provider: ^2.1.4
+
+  # Typography
+  google_fonts: ^6.2.1
+
+  # UUID for scan result IDs
+  uuid: ^4.4.2
+
+  # Relative timestamps
+  timeago: ^3.7.0
+
+  # Package info for Settings/About
+  package_info_plus: ^8.1.1
+
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  build_runner: ^2.4.12
+  hive_generator: ^2.0.1
+  flutter_launcher_icons: ^0.14.4
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/icons/app_icon.png
+    - assets/privacy_policy.html
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: false
+  image_path: "assets/icons/app_icon.png"
