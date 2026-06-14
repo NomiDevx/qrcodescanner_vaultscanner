@@ -5,7 +5,6 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:gal/gal.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
@@ -98,16 +97,6 @@ class _GeneratorScreenState extends ConsumerState<GeneratorScreen> {
     setState(() => _isSaving = false);
   }
 
-  Future<int> _getAndroidVersion() async {
-    try {
-      return int.parse(Platform.operatingSystemVersion
-          .split('.')
-          .first
-          .replaceAll(RegExp(r'[^0-9]'), ''));
-    } catch (_) {
-      return 30;
-    }
-  }
 
   Future<void> _shareQr() async {
     final state = ref.read(generatorProvider);
@@ -203,7 +192,7 @@ class _GeneratorScreenState extends ConsumerState<GeneratorScreen> {
             ],
 
             // Text input
-            _SectionLabel('Content'),
+            const _SectionLabel('Content'),
             const SizedBox(height: 8),
             TextField(
               controller: _textController,
@@ -220,7 +209,7 @@ class _GeneratorScreenState extends ConsumerState<GeneratorScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _SectionLabel('Size'),
+                const _SectionLabel('Size'),
                 Text(
                   '${state.size.round()}px',
                   style: AppTextStyles.labelMedium
@@ -240,7 +229,7 @@ class _GeneratorScreenState extends ConsumerState<GeneratorScreen> {
             const SizedBox(height: 20),
 
             // Foreground color
-            _SectionLabel('Color'),
+            const _SectionLabel('Color'),
             const SizedBox(height: 10),
             Row(
               children: colorOptions
@@ -280,7 +269,7 @@ class _GeneratorScreenState extends ConsumerState<GeneratorScreen> {
             const SizedBox(height: 20),
 
             // Background color
-            _SectionLabel('Background'),
+            const _SectionLabel('Background'),
             const SizedBox(height: 10),
             Row(
               children: [
@@ -306,7 +295,7 @@ class _GeneratorScreenState extends ConsumerState<GeneratorScreen> {
             const SizedBox(height: 20),
 
             // Error correction
-            _SectionLabel('Error Correction'),
+            const _SectionLabel('Error Correction'),
             const SizedBox(height: 8),
             DropdownButtonFormField<int>(
               initialValue: state.errorCorrectionLevel,

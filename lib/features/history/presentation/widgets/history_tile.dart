@@ -96,7 +96,7 @@ class HistoryTile extends ConsumerWidget {
                           ),
                           if (result.isFavorite) ...[
                             const SizedBox(width: 6),
-                            Icon(Icons.star_rounded,
+                            const Icon(Icons.star_rounded,
                                 size: 14, color: Colors.amber),
                           ],
                         ],

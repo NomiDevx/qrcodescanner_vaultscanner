@@ -16,7 +16,7 @@ class ScanOverlayPainter extends CustomPainter {
   final double animation; // 0.0 to 1.0
   final bool isDarkMode;
 
-  static final double _windowSize = AppConstants.scanWindowSize;
+  static const double _windowSize = AppConstants.scanWindowSize;
   static const double _cornerLength = 40.0;
   static const double _cornerStroke = 3.5;
   static const double _cornerRadius = 4.0;
@@ -94,8 +94,8 @@ class ScanOverlayPainter extends CustomPainter {
     double bottom,
     Paint paint,
   ) {
-    final cl = _cornerLength;
-    final cr = _cornerRadius;
+    const cl = _cornerLength;
+    const cr = _cornerRadius;
 
     // Top-left
     canvas.drawPath(

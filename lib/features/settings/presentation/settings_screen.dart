@@ -26,7 +26,7 @@ class SettingsScreen extends ConsumerWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         children: [
           // ── Appearance ──────────────────────────────────────────────────
-          _SectionHeader('Appearance'),
+          const _SectionHeader('Appearance'),
 
           Card(
             child: Padding(
@@ -88,7 +88,7 @@ class SettingsScreen extends ConsumerWidget {
           const SizedBox(height: 16),
 
           // ── Scanner ──────────────────────────────────────────────────────
-          _SectionHeader('Scanner'),
+          const _SectionHeader('Scanner'),
 
           Card(
             child: Column(
@@ -119,7 +119,7 @@ class SettingsScreen extends ConsumerWidget {
           const SizedBox(height: 16),
 
           // ── History ──────────────────────────────────────────────────────
-          _SectionHeader('History'),
+          const _SectionHeader('History'),
 
           Card(
             child: Column(
@@ -138,7 +138,7 @@ class SettingsScreen extends ConsumerWidget {
           const SizedBox(height: 16),
 
           // ── About ────────────────────────────────────────────────────────
-          _SectionHeader('About'),
+          const _SectionHeader('About'),
 
           Card(
             child: Column(
