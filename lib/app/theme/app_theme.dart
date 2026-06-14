@@ -11,7 +11,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: cs,
-      textTheme: AppTextStyles.textTheme,
+      textTheme: AppTextStyles.textTheme(ThemeData.light().textTheme),
 
       // Scaffold
       scaffoldBackgroundColor: Colors.white,
@@ -119,7 +119,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: cs,
-      textTheme: AppTextStyles.textTheme,
+      textTheme: AppTextStyles.textTheme(ThemeData.dark().textTheme),
 
       scaffoldBackgroundColor: const Color(0xFF121212),
 

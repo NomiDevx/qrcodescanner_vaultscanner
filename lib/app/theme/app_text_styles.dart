@@ -5,7 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 class AppTextStyles {
   AppTextStyles._();
 
-  static TextTheme get textTheme => GoogleFonts.interTextTheme();
+  static TextTheme textTheme(TextTheme base) => GoogleFonts.interTextTheme(base);
 
   // Display
   static TextStyle get displayLarge => GoogleFonts.inter(
