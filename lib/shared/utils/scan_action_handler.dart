@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../features/scanner/domain/scan_result_model.dart';
 
 /// Detects the scan type from raw barcode/QR content.
@@ -180,3 +181,41 @@ IconData primaryActionIcon(ScanType type) {
       return Icons.copy_rounded;
   }
 }
+
+/// Shares scan result content with intelligent formatting per type and tablet-safe origin.
+Future<void> shareScanResult(BuildContext context, ScanResultModel result) async {
+  String shareText = result.rawContent;
+
+  if (result.type == ScanType.wifi) {
+    final wifi = parseWifi(result.rawContent);
+    final buffer = StringBuffer('Wi-Fi Network: ${wifi.ssid}');
+    if (wifi.password.isNotEmpty) {
+      buffer.write('\nPassword: ${wifi.password}');
+    }
+    if (wifi.security.isNotEmpty) {
+      buffer.write('\nSecurity: ${wifi.security}');
+    }
+    shareText = buffer.toString();
+  }
+
+  Rect? origin;
+  final box = context.findRenderObject() as RenderBox?;
+  if (box != null && box.hasSize) {
+    origin = box.localToGlobal(Offset.zero) & box.size;
+  }
+
+  try {
+    await Share.share(
+      shareText,
+      subject: 'ScanVault - ${scanTypeLabel(result.type)}',
+      sharePositionOrigin: origin,
+    );
+  } catch (e) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not share scan result')),
+      );
+    }
+  }
+}
+

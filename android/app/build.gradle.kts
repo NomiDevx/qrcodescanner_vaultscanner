@@ -24,6 +24,12 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
+    packaging {
+        jniLibs {
+            useLegacyPackaging = false
+        }
+    }
+
     signingConfigs {
         create("release") {
             keyAlias = keystoreProperties["keyAlias"] as String?
@@ -36,7 +42,7 @@ android {
     defaultConfig {
         applicationId = "com.nomidevx.scanvault"
         minSdk = flutter.minSdkVersion
-        targetSdk = 35
+        targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName
 
@@ -69,5 +75,19 @@ flutter {
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
     compilerOptions {
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+    }
+}
+
+dependencies {
+    implementation("androidx.camera:camera-core:1.4.1")
+    implementation("androidx.camera:camera-camera2:1.4.1")
+    implementation("androidx.camera:camera-lifecycle:1.4.1")
+}
+
+configurations.all {
+    resolutionStrategy {
+        force("androidx.camera:camera-core:1.4.1")
+        force("androidx.camera:camera-camera2:1.4.1")
+        force("androidx.camera:camera-lifecycle:1.4.1")
     }
 }

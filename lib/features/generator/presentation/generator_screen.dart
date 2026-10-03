@@ -25,6 +25,7 @@ class _GeneratorScreenState extends ConsumerState<GeneratorScreen> {
   final _textController = TextEditingController();
   final _repaintKey = GlobalKey();
   bool _isSaving = false;
+  bool _isSharing = false;
 
   @override
   void dispose() {
@@ -46,9 +47,9 @@ class _GeneratorScreenState extends ConsumerState<GeneratorScreen> {
   }
 
   Future<void> _saveToGallery() async {
-    if (_isSaving) return;
+    if (_isSaving || _isSharing) return;
     final state = ref.read(generatorProvider);
-    if (state.text.isEmpty) {
+    if (state.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Enter text first to generate a QR code')),
       );
@@ -57,30 +58,30 @@ class _GeneratorScreenState extends ConsumerState<GeneratorScreen> {
 
     setState(() => _isSaving = true);
 
-    // Check gallery access
-    final hasAccess = await Gal.hasAccess();
-    if (!hasAccess) {
-      await Gal.requestAccess();
-      if (!await Gal.hasAccess()) {
-        setState(() => _isSaving = false);
+    try {
+      // Check gallery access
+      final hasAccess = await Gal.hasAccess();
+      if (!hasAccess) {
+        await Gal.requestAccess();
+        if (!await Gal.hasAccess()) {
+          return;
+        }
+      }
+
+      final bytes = await _captureQr();
+      if (bytes == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to capture QR code')),
+          );
+        }
         return;
       }
-    }
 
-    final bytes = await _captureQr();
-    if (bytes == null) {
-      setState(() => _isSaving = false);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to capture QR code')),
-        );
-      }
-      return;
-    }
-
-    try {
-      await Gal.putImageBytes(bytes,
-          name: 'scanvault_qr_${DateTime.now().millisecondsSinceEpoch}');
+      await Gal.putImageBytes(
+        bytes,
+        name: 'scanvault_qr_${DateTime.now().millisecondsSinceEpoch}',
+      );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('QR code saved to gallery')),
@@ -92,26 +93,60 @@ class _GeneratorScreenState extends ConsumerState<GeneratorScreen> {
           const SnackBar(content: Text('Failed to save QR code')),
         );
       }
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
     }
-
-    setState(() => _isSaving = false);
   }
 
   Future<void> _shareQr() async {
+    if (_isSharing || _isSaving) return;
     final state = ref.read(generatorProvider);
-    if (state.text.isEmpty) return;
+    if (state.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Enter text first to generate a QR code')),
+      );
+      return;
+    }
 
-    final bytes = await _captureQr();
-    if (bytes == null) return;
+    setState(() => _isSharing = true);
 
-    final dir = await getTemporaryDirectory();
-    final file = File('${dir.path}/scanvault_qr.png');
-    await file.writeAsBytes(bytes);
+    try {
+      final bytes = await _captureQr();
+      if (bytes == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to capture QR code for sharing')),
+          );
+        }
+        return;
+      }
 
-    await Share.shareXFiles(
-      [XFile(file.path, mimeType: 'image/png')],
-      text: 'Scan this QR code: ${state.text}',
-    );
+      final dir = await getTemporaryDirectory();
+      final file = File(
+          '${dir.path}/scanvault_qr_${DateTime.now().millisecondsSinceEpoch}.png');
+      await file.writeAsBytes(bytes);
+
+      Rect? origin;
+      final box = context.findRenderObject() as RenderBox?;
+      if (box != null && box.hasSize) {
+        origin = box.localToGlobal(Offset.zero) & box.size;
+      }
+
+      await Share.shareXFiles(
+        [XFile(file.path, mimeType: 'image/png')],
+        text: 'Scan this QR code: ${state.text}',
+        subject: 'ScanVault QR Code',
+        sharePositionOrigin: origin,
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to share QR code')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSharing = false);
+    }
   }
 
   @override
@@ -119,6 +154,7 @@ class _GeneratorScreenState extends ConsumerState<GeneratorScreen> {
     final cs = Theme.of(context).colorScheme;
     final state = ref.watch(generatorProvider);
     final notifier = ref.read(generatorProvider.notifier);
+    final hasText = state.text.trim().isNotEmpty;
 
     final colorOptions = [
       Colors.black,
@@ -149,46 +185,48 @@ class _GeneratorScreenState extends ConsumerState<GeneratorScreen> {
               child: QrPreview(repaintKey: _repaintKey),
             ),
 
-            const SizedBox(height: 28),
+            const SizedBox(height: 24),
 
-            // Action buttons
-            if (state.text.isNotEmpty) ...[
-              Row(
+            // Action buttons bar (Save, Share, Copy)
+            AnimatedOpacity(
+              duration: const Duration(milliseconds: 200),
+              opacity: hasText ? 1.0 : 0.4,
+              child: Row(
                 children: [
                   Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: _isSaving ? null : _saveToGallery,
-                      icon: _isSaving
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.download_rounded),
-                      label: Text(_isSaving ? 'Saving...' : 'Save'),
+                    child: _GeneratorActionButton(
+                      onPressed: hasText && !_isSaving ? _saveToGallery : null,
+                      isLoading: _isSaving,
+                      icon: Icons.download_rounded,
+                      label: _isSaving ? 'Saving...' : 'Save',
+                      isPrimary: true,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 8),
                   Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: _shareQr,
-                      icon: const Icon(Icons.share_rounded),
-                      label: const Text('Share'),
+                    child: _GeneratorActionButton(
+                      onPressed: hasText && !_isSharing ? _shareQr : null,
+                      isLoading: _isSharing,
+                      icon: Icons.share_rounded,
+                      label: _isSharing ? 'Sharing...' : 'Share',
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 8),
                   Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () => ClipboardHelper.copy(state.text,
-                          label: 'Text copied'),
-                      icon: const Icon(Icons.copy_rounded),
-                      label: const Text('Copy'),
+                    child: _GeneratorActionButton(
+                      onPressed: hasText
+                          ? () => ClipboardHelper.copy(state.text,
+                              label: 'Text copied')
+                          : null,
+                      isLoading: false,
+                      icon: Icons.copy_rounded,
+                      label: 'Copy',
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
-            ],
+            ),
+            const SizedBox(height: 24),
 
             // Text input
             const _SectionLabel('Content'),
@@ -379,3 +417,72 @@ class _BgColorOption extends StatelessWidget {
     );
   }
 }
+
+class _GeneratorActionButton extends StatelessWidget {
+  const _GeneratorActionButton({
+    required this.onPressed,
+    required this.isLoading,
+    required this.icon,
+    required this.label,
+    this.isPrimary = false,
+  });
+
+  final VoidCallback? onPressed;
+  final bool isLoading;
+  final IconData icon;
+  final String label;
+  final bool isPrimary;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return SizedBox(
+      height: 42,
+      child: FilledButton.tonal(
+        onPressed: onPressed,
+        style: FilledButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 6),
+          backgroundColor: isPrimary
+              ? cs.primary.withValues(alpha: 0.12)
+              : cs.surfaceContainerHighest,
+          foregroundColor: isPrimary ? cs.primary : cs.onSurface,
+          disabledBackgroundColor: cs.surfaceContainerHighest.withValues(alpha: 0.5),
+          disabledForegroundColor: cs.onSurface.withValues(alpha: 0.3),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          elevation: 0,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isLoading)
+              SizedBox(
+                width: 14,
+                height: 14,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: isPrimary ? cs.primary : cs.onSurface,
+                ),
+              )
+            else
+              Icon(icon, size: 18),
+            const SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                label,
+                style: AppTextStyles.labelMedium.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+

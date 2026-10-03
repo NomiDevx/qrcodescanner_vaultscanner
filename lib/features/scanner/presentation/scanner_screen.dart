@@ -187,8 +187,8 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      isDismissible: false,
-      enableDrag: false,
+      isDismissible: true,
+      enableDrag: true,
       backgroundColor: Colors.transparent,
       barrierColor: Colors.black.withValues(alpha: 0.4),
       builder: (ctx) => ResultSheet(
@@ -291,8 +291,8 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
     final action = await showModalBottomSheet<_GalleryAction>(
       context: context,
       isScrollControlled: true,
-      isDismissible: false,
-      enableDrag: false,
+      isDismissible: true,
+      enableDrag: true,
       backgroundColor: Colors.transparent,
       barrierColor: Colors.black.withValues(alpha: 0.4),
       builder: (ctx) => ResultSheet(

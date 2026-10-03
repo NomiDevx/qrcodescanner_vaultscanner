@@ -377,7 +377,7 @@ class _SecondaryActionsRow extends ConsumerWidget {
         _ActionChip(
           icon: Icons.share_rounded,
           label: 'Share',
-          onTap: () => Share.share(result.rawContent),
+          onTap: () => shareScanResult(context, result),
           cs: cs,
         ),
         if (!readOnly && settings.saveHistory)
